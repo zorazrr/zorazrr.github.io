@@ -1,0 +1,124 @@
+<html>
+    <head>
+        <link href = "corona.css" rel='stylesheet'>
+    </head>
+    <body>
+        <h1>COVID-19 Spread Simulator</h1>
+        <div>
+        <h2>Exponential Growth Model</h2>
+        <div class = "note" id = "note">
+            <center><h2>Notes</h2></center>
+            <dt>This simulator uses a simple <e>exponential growth</e> model.</dt>
+            <br>
+            <dt>You can change the <e>parameters</e> and test out different scenarios. Play with the <e>control buttons</e>!</dt>
+            <br>
+            <dt>The <e>show statistics</e> button is a great thing. Keep the statistics panel open.</dt>
+            <br>
+            <dt>Color palette from colorhunt.co</dt>
+            <br>
+            <center>STAY SAFE EVERYONE!</center>
+            <br>
+            <center><button class = "trigger" id = "close" onclick = "closeNote()" style = "padding-right:20px; padding-left:20px;">close</button></center>
+        </div>
+        <table>
+            <tr>
+                <th>Parameters</th>
+                <th>  </th>
+                <th>Controls</th>
+                <th>Utilities</th>
+            </tr>
+            <tr>
+                <td>
+                    <label for = "P">Infection possibility (%): </label>
+                    <input type = "number" id = "P" name = "P" onchange = updateP() min = "0" max = "100">
+                </td>
+                <td>
+                    <label for = "C">People contact rate: </label>
+                    <input type = "number" id = "C" name = "C" onchange = updateC() min = "0" max = "400">
+                </td>
+                <td>
+                    <button class = "trigger" onclick = "medic()">Strengthen medical action</button>
+                </td>
+                <td>
+                    <button class = "trigger1" onclick = "showBox()">Show Statistics</button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for = "D">Max number of days: </label>
+                    <input type = "number" id = "D" name = "D" onchange = updateD() min = "1" max = "100">
+                </td>
+                <td>
+                    <label for = "R">Recovery rate (%): </label>
+                    <input type = "number" id = "R" name = "R" onchange = updateR() min = "1" max = "100">
+                </td>
+                <td>
+                    <button class = "trigger" onclick = "stayHome()">Social distancing</button>
+                </td>
+                <td>
+                    <button class = "trigger" onclick = "location.reload();">Restart</button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for = "O">Original count: </label>
+                    <input type = "number" id = "O" name = "O" onchange = updateO() min = "1" max = "30">
+                </td>
+                <td>
+                    <label for = "M">Total Population: </label>
+                    <input type = "number" id = "M" name = "M" onchange = updateM() min = "1" max = "400">
+                </td>
+                <td>
+                    <button class = "trigger" onclick = "mutation()">Virus mutation</button>
+                </td>
+            </tr>
+        </table>
+        <div class = "countPanelContainer">
+            <button onclick = "closeStats()" class = "closey">x</button>
+            <h2>Statistics Panel</h2>
+        <div class = "countPanel">Day <span id = "day" placeholder = "0"></span> </div>
+        <div class = "countPanel">Infected Today: <span id = "today"></span></div>
+        <div class = "countPanel">Total Infected: <span id = "total"></span></div>
+        <div class = "countPanel">Recovered Today: <span id = "recovered"></span></div>
+        <div class = "countPanel"><span id = "action"></span></div>
+        <br>
+        </div>
+    
+        <center><button class = "trigger1" onclick = "draw()" style = "width:25%; margin-left:10px;margin-right:10px;"> +1 Day</button>
+        <button class = "trigger1" onclick = "skip()" style = "width:25%;margin-left:10px;margin-right:10px;"> +5 Days</button></center>
+        <canvas id = "canvas"></canvas>
+        </div>
+        
+        <div class = "graphy" id = "graphy" onclick = "closeGraph()">
+            <dt style = "font-weight:bold;">Line Graph</dt>
+            <dt style = "color:#dd6b4d;">Orange Line: total infected</dt>
+            <dt>Blue Line: infected today</dt>
+        </div>
+        <button class = "tipsButton" id = "tipsButton" onclick = "showTips()">Click for Random Prevention Tips</button>
+        <div class = "tips" id = "tip1" onclick = "closeTip1()">
+            <!--<button onclick = "closeTip1()" class = "closer">x</button>-->
+            <dt style = "color:#dd6b4d;">Tip 1</dt>
+            <dt>Wash your hands!</dt>
+            <img src = "https://cdn4.iconfinder.com/data/icons/healthy-life-line-color-live-long-and-prosper/512/Hand_washing-512.png"
+            style = "width:100px; height:auto;">
+            <dt>(click again to close)</dt>
+        </div>
+        <div class = "tips" id = "tip2" onclick = "closeTip2()">
+            <!--<button onclick = "closeTip2()" class = "closer">x</button>-->
+            <dt style = "color:#dd6b4d;">Tip 2</dt>
+            <dt>Don't touch your face!</dt>
+            <img src = "https://cdn1.iconfinder.com/data/icons/customer-relationship-management-5/50/vector_912_04-512.png"
+            style = "width:100px; height:auto;">
+            <dt>(click again to close)</dt>
+        </div>
+        <div class = "tips" id = "tip3" onclick = "closeTip3()">
+            <!--<button onclick = "closeTip3()" class = "closer">x</button>-->
+            <dt style = "color:#dd6b4d;">Tip 3</dt>
+            <dt>Stay at home!</dt>
+            <img src = "https://cdn0.iconfinder.com/data/icons/family-home/100/Family_home__gif-512.png"
+            style = "width:100px; height:auto;">
+            <dt>(click again to close)</dt>
+        </div>
+        <script src='corona.js'></script>
+        </body>
+</html>
