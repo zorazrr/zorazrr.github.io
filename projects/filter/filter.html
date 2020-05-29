@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link href="https://fonts.googleapis.com/css?family=Fredericka+the+Great&display=swap" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Pompiere&display=swap" rel="stylesheet">
+		<link rel="icon" href="https://www.freeiconspng.com/uploads/letter-f-icon-png-13.png">
+		<link rel="apple-touch-icon-precomposed" sizes="57x57" href="https://www.freeiconspng.com/uploads/letter-f-icon-png-13.png"/>
+		<meta name="Filter Applet" content="Filter Applet">
+		<style>
+		body{
+			background-color: #c8d9e5;
+			color: #414a57;
+		}
+		h1{
+			font-family: 'Pompiere', cursive;
+			font-size:130px;
+		}
+		canvas, video{
+			display:none;
+			margin:0 auto;
+			padding:10px;
+		}
+		button.trigger{
+			color:#414a57;
+			background-color:white;
+			border:none;
+			font-family: 'Pompiere', cursive;
+			font-size:150px;
+			width:70%;
+			height:250px;
+			margin: 0;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			outline-style: none;
+			box-shadow: 0 0 4px #999;
+			transition: 0.8s;
+		}
+		button.trigger:hover{
+			background-color:#ffffff88;
+		}
+		button.filters{
+			color:#414a57;
+			background-color:white;
+			border:none;
+			margin:0px;
+			font-family: 'Pompiere', cursive;
+			font-size:80px;
+			width:25%;
+			height:150px;
+			display:none;
+			float:left;
+			padding:0px;
+			outline-style: none;
+			cursor: pointer;
+			background-position: center;
+			transition: background 0.8s;
+		}
+		button.filters:hover{
+			background: #c8d9e5 radial-gradient(circle, transparent 1%, #ffffff 1%) center/15000%;
+		}
+		button.filters:active {
+			background-color: #c8d9e5;
+			background-size: 100%;
+			transition: background 0s;
+}
+		footer{
+			font-family: 'Pompiere', cursive;
+			color: #414a57;
+			position: fixed;
+			bottom: 0;
+			right:0px;
+			width:100%;
+			height:auto;
+			font-size:50px;
+			text-align:center;
+		}
+		</style>
+	</head>
+
+	<body>
+		<center><h1>FILTER APPLET</h1></center>
+		<button class = "trigger">Start</button>
+		<button id = "xRay" class="filters">xRay</button>
+		<button id = "Red" class = "filters">Red</button>
+		<button id = "Green" class = "filters">Green</button>
+		<button id = "Blue" class = "filters">Blue</button>
+		
+		<video playsinline></video> 
+		<canvas></canvas>
+		<footer>Filter Web Applet - Created by Zora © 2019 </footer> 
+		
+		<script>
+		var title = document.querySelector('h1');
+		var trigger = document.querySelector('button.trigger');
+		var video = document.querySelector('video[playsinline]');
+		var buttonXRay = document.querySelector('button#xRay');
+		var buttonRed = document.querySelector('button#Red');
+		var buttonBlue = document.querySelector('button#Blue');
+		var buttonGreen = document.querySelector('button#Green');
+		var canvas = document.querySelector('canvas');
+		var context = canvas.getContext('2d');
+		
+		var constraints = {
+				audio: false
+				, video: {
+					width: 1280, height: 960, facingMode: 'environment'
+				}
+		}
+		function setupVideo() {
+			navigator
+			.mediaDevices
+			.getUserMedia(constraints)
+			.then(loadVideo)
+			.catch(handleError);
+		}
+		function loadVideo(mediaStream) {
+			video.srcObject = mediaStream;
+			video.onloadedmetadata = playVideo;
+		}
+		function playVideo() {
+			video.play();
+			title.style.display = 'none';
+			video.style.display = 'block';
+			trigger.style.display = 'none';
+			buttonXRay.style.display = 'block';
+			buttonRed.style.display = 'block';
+			buttonBlue.style.display = 'block';
+			buttonGreen.style.display = 'block';
+			}
+		function handleError(err) {
+			alert(err.message);
+		}
+		function takeXRay(){
+			canvas.width = video.videoWidth;
+			canvas.height = video.videoHeight;
+			video.style.display = 'none';
+			canvas.style.display = 'block';
+			context.drawImage(video, 0, 0, canvas.width, canvas.height);
+			xRayImg();
+		}
+		function takeRed(){
+			canvas.width = video.videoWidth;
+			canvas.height = video.videoHeight;
+			video.style.display = 'none';
+			canvas.style.display = 'block';
+			context.drawImage(video, 0, 0, canvas.width, canvas.height);
+			redImg();
+		}
+		function takeBlue(){
+			canvas.width = video.videoWidth;
+			canvas.height = video.videoHeight;
+			video.style.display = 'none';
+			canvas.style.display = 'block';
+			context.drawImage(video, 0, 0, canvas.width, canvas.height);
+			blueImg();
+		}
+		function takeGreen(){
+			canvas.width = video.videoWidth;
+			canvas.height = video.videoHeight;
+			video.style.display = 'none';
+			canvas.style.display = 'block';
+			context.drawImage(video, 0, 0, canvas.width, canvas.height);
+			greenImg();
+		}
+		function xRayImg(){
+			var imageData = context.getImageData(0,0,canvas.width,canvas.height);
+			for (var i = 0; i < imageData.data.length; i+=4){
+				var r = imageData.data[i];
+				var g = imageData.data[i+1];
+				var b = imageData.data[i+2];
+				var ave = (r + g + b) / 3;
+				imageData.data[i] = 255 - ave;
+				imageData.data[i+1] = 255 - ave;
+				imageData.data[i+2] = 255 - ave;
+			}
+			context.putImageData(imageData, 0 , 0);
+		}	
+		function redImg(){
+			var imageData = context.getImageData(0,0,canvas.width,canvas.height);
+			for (var i = 0; i < imageData.data.length; i+=4){
+				var r = imageData.data[i];
+				var g = imageData.data[i+1];
+				var b = imageData.data[i+2];
+				var ave = (r + g + b) / 3;
+				imageData.data[i] = imageData.data[i];
+				imageData.data[i+1] = 0;
+				imageData.data[i+2] = 0;
+			}
+			context.putImageData(imageData, 0 , 0);
+		}	
+		function blueImg(){
+			var imageData = context.getImageData(0,0,canvas.width,canvas.height);
+			for (var i = 0; i < imageData.data.length; i+=4){
+				var r = imageData.data[i];
+				var g = imageData.data[i+1];
+				var b = imageData.data[i+2];
+				var ave = (r + g + b) / 3;
+				imageData.data[i] = 0;
+				imageData.data[i+1] = 0;
+				imageData.data[i+2] = imageData.data[i+2];
+			}
+			context.putImageData(imageData, 0 , 0);
+			
+		}
+		function greenImg(){
+			var imageData = context.getImageData(0,0,canvas.width,canvas.height);
+			for (var i = 0; i < imageData.data.length; i+=4){
+				var r = imageData.data[i];
+				var g = imageData.data[i+1];
+				var b = imageData.data[i+2];
+				var ave = (r + g + b) / 3;
+				imageData.data[i] = 0;
+				imageData.data[i+1] = imageData.data[i+1];
+				imageData.data[i+2] = 0;
+			}
+			context.putImageData(imageData, 0 , 0);
+		}
+		
+		trigger.addEventListener('click',setupVideo);
+		buttonXRay.addEventListener('click',takeXRay);
+		buttonRed.addEventListener('click',takeRed);
+		buttonBlue.addEventListener('click',takeBlue);
+		buttonGreen.addEventListener('click',takeGreen);
+		</script>
+	</body>
+</html>
