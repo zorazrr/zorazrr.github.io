@@ -1,0 +1,514 @@
+<html>
+	<head>
+		<title>Image Processor</title>
+		<meta name="viewport" content="width=device-width, initial-scale=0.7">
+		<link rel="icon" href="https://winaero.com/blog/wp-content/uploads/2019/11/Photos-new-icon.png">
+		<link href="https://fonts.googleapis.com/css?family=Quicksand&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		<style>
+		h1{
+			font-size:14px;
+			color:white;
+			margin-left:5%;
+		}
+		body{
+			background:#1C1C1C;
+			width:100vw;
+			height:100vh;
+			margin:0;
+			font-family: 'Quicksand', sans-serif;
+		}
+		#panel{
+			position:absolute;
+			top:0;
+			right:0;
+			bottom:0;
+			width:30vw;
+			min-width:300px;
+			max-width:400px;
+			background-color:#434343;
+			box-shadow:-3px 0px 10px 1px #000000;
+		}
+		.hist{
+			background-color: rgba(255, 255, 255, 0.1);
+			width:60%;
+			height:30%;
+			position:absolute;
+			top:4%;
+			left:25%;
+			opacity:0.9;
+			transform:rotate(-90deg);
+			border:1px solid white;
+		}
+		.hist:first-child{
+			background-color:#ffffff;
+		}
+		#hsvControls{
+			position:absolute;
+			bottom:0;
+			width:100%;
+			margin-bottom:10px;
+			margin-left:0;
+			padding:5px;
+		}
+		label{
+			color:white;
+			/*border:1px solid grey;*/
+			padding-right:5px;
+			padding-left:5px;
+			font-size:14px;
+		}
+		text{
+			color:white;
+			font-size:14px;
+		}
+		.apply{
+			margin-left:20px;
+			margin-top:5px;
+			margin-bottom:8px;
+			border:none;
+			outline:none;
+			font-family: 'Quicksand', sans-serif;
+			border-radius:2px;
+			font-size:10px;
+			background-color:white;
+		}
+		.apply:hover{
+			background-color:#a6a8ab;
+			transition:.3s;
+		}
+		.control{
+			width:100%;
+			margin-top:30px;
+			padding:3px;
+			background-color:#616161;
+		}
+		canvas{
+			cursor: crosshair;
+		}
+		.inputty{
+			width:40px;
+			font-family: 'Quicksand', sans-serif;
+			height:18px;
+			border:none;
+			outline:none;
+		}
+		input[type="file"] {
+			display: none;
+		}
+		.custom-file-upload {
+		    border: none;
+		    display: inline-block;
+		    margin:0 auto;
+		    text-align:center;
+		    background-color:#363636;
+		    padding:5px;
+		    font-family: 'Quicksand', sans-serif;
+		    color:white;
+		}
+		.custom-file-upload:hover{
+			background-color:#6e6e6e;
+			transition:.3s ease;
+		}
+		canvas{
+			cursor: crosshair;
+		}
+		</style>
+	</head>
+	<body>
+		<div id = 'panel'>
+			<div class = 'hist red'></div>
+			<div class = 'hist blue'></div>
+			<div class = 'hist green'></div>
+			<br><br><br><br><br><br><br><br><br><br><br><br>
+			<div class = 'control'>
+			<h1>Your picked color value: <span id="click"></span></h1>
+			<h1>Your mouse position: <span id = "pos"></span></h1>
+			<h1>Your new color value: <span id = "newColor"></span></h1>
+			<h1>Filling color: <input class = "inputty" type = "color" id = "fillColor" name = "fillColor"></h1>
+			<h1>Tolerance:   <input class = "inputty" type = "number" id = "tol" name = "tol"></h1>
+			<button class ='apply' id = 'apply'>Apply</button>
+			</div>
+			<label for="imageLoader" class="custom-file-upload">Upload Image</label>
+			<input type="file" id="imageLoader" name="imageLoader"/>
+			<div class = 'maxColor'></div>
+			<div id = 'hsvControls'></div>
+		</div>
+		<canvas></canvas>
+		<script type = 'module'>
+			import {Dial} from '/dial.js';
+			import {Slide} from '/slide.js';
+			
+			var image = new Image()
+			,hasHist = false
+			,xx, yy, ww, hh
+			,canvas = document.querySelector('canvas')
+			,tools = canvas.getContext('2d')
+			, holder;
+			
+			document.getElementById("tol").defaultValue = "50";
+			var tolerance = 50**2;
+			var fillColorArr = [];
+			var fillColor = {r: 0, g: 0, b: 0};
+			function updateFill(){
+				fillColor = HEX2RGB(document.getElementById("fillColor").value);
+				fillColorArr = Object.values(fillColor);
+				document.getElementById("newColor").innerHTML = (fillColorArr[0] + ", " + fillColorArr[1] + ", " + fillColorArr[2]);
+			}
+			function updateTol(){
+				tolerance = (document.getElementById("tol").value) ** 2;
+			}
+			
+			function HEX2RGB (hex) {
+			        "use strict";
+			        if (hex.charAt(0) === '#') {
+			            hex = hex.substr(1);
+			        }
+			        if ((hex.length < 2) || (hex.length > 6)) {
+			            return false;
+			        }
+			        var values = hex.split(''),
+			            r,
+			            g,
+			            b;
+			
+			        if (hex.length === 2) {
+			            r = parseInt(values[0].toString() + values[1].toString(), 16);
+			            g = r;
+			            b = r;
+			        } else if (hex.length === 3) {
+			            r = parseInt(values[0].toString() + values[0].toString(), 16);
+			            g = parseInt(values[1].toString() + values[1].toString(), 16);
+			            b = parseInt(values[2].toString() + values[2].toString(), 16);
+			        } else if (hex.length === 6) {
+			            r = parseInt(values[0].toString() + values[1].toString(), 16);
+			            g = parseInt(values[2].toString() + values[3].toString(), 16);
+			            b = parseInt(values[4].toString() + values[5].toString(), 16);
+			        } else {
+			            return false;
+			        }
+			        return {r, g, b};
+			    }
+			
+			const satSlide = new Slide("Saturation:", 97,100,-100,1,0, adjustSaturation);
+			const hueSlide = new Slide("Hue:", 97,180,-180,1,0, adjustHue);
+			const brightSlide = new Slide("Brightness:", 97,100,-100,1,0, adjustBrightness);
+			const hsvControls = document.getElementById('hsvControls');
+			
+			function rgbTohsv(r, g, b) {
+				const 
+					// Input Values
+					R = r/255
+					, G = g/255
+					, B = b/255
+					// Intermediary Values
+					, Xmax = Math.max(R,G,B)
+					, Xmin = Math.min(R,G,B)
+					, C =  Xmax - Xmin
+					, L = C/2
+					, V = Xmax
+					, H = C === 0 ? 0
+						: R === V ? 60*(0 + (G-B)/C)
+						: G === V ? 60*(2 + (B-R)/C)
+						: B === V ? 60*(4 + (R-G)/C)
+						: 0
+					, S = V === 0 ? 0
+						: C/V
+					// Output Values
+					, h = H < 0 ? 360 + H : H
+					, s = S*100
+					, v = V*100;
+					return [h,s,v];}
+			
+			function applyVTransform(v, multiplier){
+				return (v * (1 + (multiplier/100)));
+			}
+			
+			function applyHTransform(h, multiplier){
+				return (h * (1 + (multiplier/180)));
+			}
+			
+			function applySTransform(s, multiplier){
+				return (s * (1 + (multiplier/100)));
+			}
+			
+			function adjustHue(multiplier){
+				// Get actual brightness
+				const actualBrightness = multiplier;
+				// get RGB value 
+				const pixel = tools.getImageData(xx,yy,ww,hh);
+				for (var p = 0; p < holder.data.length; p += 4){
+					const r = holder.data[p];
+					const g = holder.data[p+1];
+					const b = holder.data[p+2];
+					
+					const [h,s,v] = rgbTohsv(r,g,b);
+					const hnew = applyHTransform(h,multiplier);
+					const [rnew,gnew,bnew] = hsvTorgb(hnew,s,v);
+					
+					pixel.data[p] = rnew;
+					pixel.data[p+1] = gnew;
+					pixel.data[p+2] = bnew;
+				}
+				createHistogram(xx,yy,ww,hh);
+				tools.putImageData(pixel, xx, yy);
+			}
+			
+			function hsvTorgb(h,s,v){
+				// https://en.wikipedia.org/wiki/HSL_and_HSV#HSV_to_RGB
+				var r = 0;
+				var g = 0;
+				var b = 0;
+				var h = h; 
+				var s = s/100;
+				var v = v/100; 
+				const c = v * s;
+				const H = h/60;
+				const X = c * (1 - Math.abs(H % 2 - 1));
+				const m = v - c; 
+				if (isNaN(H)){r = 0; g = 0; b = 0;}
+				else if (0 <= H && H <=1){r = c; g = X; b = 0;}
+				else if (H > 1 && H <= 2){r = X; g = c; b = 0;}
+				else if (H > 2 && H <= 3){r = 0; g = c; b = X;}
+				else if (H > 3 && H <= 4){r = 0; g = X; b = c;}
+				else if (H > 4 && H <= 5){r = X; g = 0; b = c;}
+				else if (H > 5 && H <= 6){r = c; g = 0; b = X;}
+				r = (parseInt ((r + m) * 255));
+				g = (parseInt ((g + m) * 255));
+				b = (parseInt ((b + m) * 255));
+				return [r,g,b];
+			}
+			
+			function adjustSaturation(multiplier){
+				const actualBrightness = multiplier;
+				const pixel = tools.getImageData(xx,yy,ww,hh);
+				for (var p = 0; p < holder.data.length; p += 4){
+					const r = holder.data[p];
+					const g = holder.data[p+1];
+					const b = holder.data[p+2];
+					
+					const [h,s,v] = rgbTohsv(r,g,b);
+					const snew = applySTransform(s,multiplier);
+					const [rnew,gnew,bnew] = hsvTorgb(h,snew,v);
+					
+					pixel.data[p] = rnew;
+					pixel.data[p+1] = gnew;
+					pixel.data[p+2] = bnew;
+				}
+				tools.putImageData(pixel, xx, yy);
+				createHistogram(xx,yy,ww,hh);
+			}
+			
+			function adjustBrightness(multiplier){
+				// Get actual brightness
+				const actualBrightness = multiplier;
+				// get RGB value 
+				const pixel = tools.getImageData(xx,yy,ww,hh);
+				for (var p = 0; p < holder.data.length; p += 4){
+					const r = holder.data[p];
+					const g = holder.data[p+1];
+					const b = holder.data[p+2];
+					
+					const [h,s,v] = rgbTohsv(r,g,b);
+					const vnew = applyVTransform(v,multiplier);
+					const [rnew,gnew,bnew] = hsvTorgb(h,s,vnew);
+					
+					pixel.data[p] = rnew;
+					pixel.data[p+1] = gnew;
+					pixel.data[p+2] = bnew;
+				}
+				tools.putImageData(pixel, xx, yy);
+				createHistogram(xx,yy,ww,hh);
+			}
+		
+			function drawImage(){
+				var canvas = document.querySelector('canvas');
+				var tools = canvas.getContext('2d');
+				
+				var screenRect = document.body.getBoundingClientRect();
+				var panel = document.querySelector('#panel').getBoundingClientRect();
+				
+				var w = image.width;
+				var h = image.height;
+			
+				canvas.width = screenRect.width;
+				canvas.height = screenRect.height;
+
+				var imageRatio = w/h;
+				var canvasRatio = (canvas.width - panel.width)/canvas.height;
+				
+				if (imageRatio > canvasRatio){
+					xx = 0;
+					ww = canvas.width - panel.width;
+					hh = ww/imageRatio;
+					yy = (canvas.height - hh) / 2;
+				}
+				else {
+					yy = 0;
+					hh = canvas.height;
+					ww = hh * imageRatio;
+					xx = (canvas.width - ww - panel.width) / 2 ;
+				}
+				tools.imageSmoothingEnabled = true;
+				tools.drawImage(image, xx, yy, ww, hh);
+				holder = tools.getImageData(xx,yy,ww,hh);
+				
+				ww = Math.ceil(ww) + 1;
+				hh = Math.ceil(hh) + 1;
+				xx = Math.floor(xx);
+				yy = Math.floor(yy);
+				
+				if (!hasHist){
+					hasHist = true;
+					createHistogram(xx,yy,ww,hh);
+				}
+			}
+			
+			function createHistogram(xx,yy,ww,hh){
+				//Extract pixels 
+				const canvas = document.querySelector('canvas');
+				const tools = canvas.getContext('2d');
+				const pixel = tools.getImageData(xx,yy,ww,hh);
+				
+				//Create histogram 
+				const red_hist = new Array(256).fill(0);
+				const green_hist = new Array(256).fill(0);
+				const blue_hist = new Array(256).fill(0);
+				
+				for (var i = 0; i < pixel.data.length; i+=4){
+					const r = pixel.data[i+0]
+					,g = pixel.data[i+1]
+					,b = pixel.data[i+2]
+					,a = pixel.data[i+3];
+					
+					red_hist[r] +=1;
+					green_hist[g] +=1;
+					blue_hist[b] +=1;
+				}
+				drawHistogram(red_hist,'red');
+				drawHistogram(green_hist,'green');
+				drawHistogram(blue_hist,'blue');
+				
+				const maxRed = Math.max(...red_hist);
+				const maxGreen = Math.max(...green_hist);
+				const maxBlue = Math.max(...blue_hist);
+				
+				const redy = red_hist.indexOf(maxRed);
+				const greeny = green_hist.indexOf(maxGreen);
+				const bluey = blue_hist.indexOf(maxBlue);
+				
+				var maxColor = document.createElement("div"); 
+				const div = document.createElement('div');
+				div.style.backgroundColor = `rgb(${redy},${greeny},${bluey})`;
+				div.style.width = '20px';
+				div.style.height = '20px';
+				maxColor.appendChild(div);
+			}
+			function drawHistogram(hist, color){
+				//Loop through each color and create a div
+				const histContainer = document.querySelector(`.hist.${color}`);
+				histContainer.innerHTML = '';
+				const histContainerSize = histContainer.getBoundingClientRect();
+				const max = Math.max(...hist);
+				const ht = histContainerSize.width/255;
+				hist.forEach((val, i) => {
+					const div = document.createElement('div');
+					div.style.backgroundColor = color;
+					div.style.height = ht + 'px';
+					div.style.width = ((val/max)*100) + '%';
+					histContainer.appendChild(div);
+				})
+				//Add axis 
+			}
+			
+			function selectPixels(e){
+				const imgData = tools.getImageData(0, 0, canvas.width, canvas.height);
+				var pointsFilled = new Set();
+				var p = {x: e.x, y:e.y};
+				const pointsToFill = new Set();
+				const initialPt = {
+					x: p.x, y: p.y, color: getColor(p)
+				}
+				
+				function getColor(p){
+					const index = (((imgData.width * p.y) + p.x) * 4);
+					const r = imgData.data[index];
+					const g = imgData.data[index+ 1];
+					const b = imgData.data[index + 2];
+					return {r,g,b};
+				}
+				
+				function setColor(p){
+					const i = ((imgData.width * p.y) + p.x) * 4;
+					imgData.data[i] = fillColor.r;
+					imgData.data[i+1] = fillColor.g;
+					imgData.data[i+2] = fillColor.b;
+					pointsFilled.add(JSON.stringify(p));
+				}
+				
+				function withinTolerance(pt){
+					const s = JSON.stringify(pt);
+					if(pointsFilled.has(s)){
+						return;
+					}
+					const dist = (pt.color.r - initialPt.color.r)**2 + (pt.color.g - initialPt.color.g)**2 + (pt.color.b- initialPt.color.b)**2
+					, fill = dist < tolerance;
+					if (fill) pointsToFill.add(JSON.stringify(pt));
+					return fill;
+				}
+				
+				function point(p, dx, dy){
+					const pt =  {x: p.x + dx, y: p.y + dy}
+					pt.color = getColor(pt);
+					pt.fill = withinTolerance(pt);
+					document.getElementById("click").innerHTML = (pt.color.r + ", " + pt.color.g + ", " + pt.color.b);
+					document.getElementById("pos").innerHTML = (p.x + ", " + p.y);
+					return pt;
+				}
+				
+				function getNeighbors(p){
+					const n00 = point(p, -1, -1);
+					const n01 = point(p, 0, -1);
+					const n02 = point(p, 1, -1);
+					
+					const n10 = point(p, -1, 0);
+					const n11 = point(p, 0, 0);
+					const n12 = point (p, 1, 0);
+					
+					const n20 = point(p, -1, 1);
+					const n21 = point(p, 0, 1);
+					const n22 = point(p, 1, 1);
+					
+					return [[n00, n01, n02]
+						   ,[n10, n11, n12]
+						   ,[n20, n21, n22]];
+				}
+				getNeighbors(p);
+				
+				while (pointsToFill.size){
+					//1. remove a point to fill 
+					const pt = pointsToFill.values().next().value;
+					pointsToFill.delete(pt);
+					//2. replace the point to fill with the color we want to fill it 
+					const npt = JSON.parse(pt);
+					setColor(npt);
+					//3. Get neighbors of that points => add more points to fill 
+					getNeighbors(npt);
+				}
+				tools.putImageData(imgData, 0, 0);
+				createHistogram(xx, yy, ww, hh);
+			}
+			
+			hueSlide.draw(hsvControls);
+			satSlide.draw(hsvControls);
+			brightSlide.draw(hsvControls);
+
+			image.onload = drawImage;
+			image.src = 'https://zora.wisen.space/xw_tqzggpbezi3mqo_gyfnhx.jpeg';
+			
+			window.addEventListener('resize', drawImage);
+			document.getElementById('apply').addEventListener('click',updateFill);
+			canvas.onclick = selectPixels;
+		</script>
+	</body>
+</html>
