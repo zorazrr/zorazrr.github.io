@@ -1,0 +1,150 @@
+:root{
+    --cell-size:100px;
+    --mark-size:calc(var(--cell-size) * .9);
+}
+
+body{
+    margin:0;
+    font-family: 'Dosis', sans-serif;
+}
+
+.board{
+    width:100vw;
+    height:100vh;
+    display:grid;
+    justify-content: center;
+    justify-items: center;
+    align-items: center;
+    align-content: center;
+    grid-template-columns: repeat(3,auto);
+}
+
+.cell{
+    width:var(--cell-size);
+    height: var(--cell-size);
+    background-color: rgba(255,255,255,0);
+    border:2px solid black;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    position:relative;
+}
+
+/* set cursor */
+.cell.x,
+.cell.circle{
+    cursor:not-allowed;
+}
+
+/* getting rid of the borders */
+.cell:first-child,
+.cell:nth-child(2),
+.cell:nth-child(3){
+    border-top:none;
+}
+.cell:nth-child(3n+1){
+    border-left:none;
+}
+.cell:nth-child(3n){
+    border-right:none;
+}
+.cell:last-child,
+.cell:nth-child(8),
+.cell:nth-child(7){
+    border-bottom:none;
+}
+
+.cell.x::before,
+.cell.x::after{
+    background-color:black;
+}
+
+.cell.circle::before{
+    background-color:black;
+}
+
+/* hover effect for x */
+.board.x .cell:not(.x):not(.circle):hover::before,
+.board.x .cell:not(.x):not(.circle):hover::after{
+    background-color:lightgray;
+}
+
+/* hover effect for circle  */
+.board.circle .cell:not(.x):not(.circle):hover::before,
+.board.circle .cell:not(.x):not(.circle):hover::after{
+    background-color:lightgray;
+}
+
+/* creating X symbol */
+.cell.x::before,
+.cell.x::after,
+.board.x .cell:not(.x):not(.circle):hover::before,
+.board.x .cell:not(.x):not(.circle):hover::after{
+    content:'';
+    width:calc(var(--mark-size) * .15);
+    position:absolute;
+    height: var(--mark-size);
+}
+.cell.x::before,
+.board.x .cell:not(.x):not(.circle):hover::before{
+    transform:rotate(45deg);
+}
+.cell.x::after,
+.board.x .cell:not(.x):not(.circle):hover::after{
+    transform:rotate(-45deg);
+}
+
+/* creating circle symbol */
+.cell.circle::before,
+.cell.circle::after,
+.board.circle .cell:not(.x):not(.circle):hover::before,
+.board.circle .cell:not(.x):not(.circle):hover::after{
+    content:'';
+    position:absolute;
+    border-radius:50%;
+}
+.cell.circle::before,
+.board.circle .cell:not(.x):not(.circle):hover::before{
+    width: var(--mark-size);
+    height: var(--mark-size);
+}
+.cell.circle::after,
+.board.circle .cell:not(.x):not(.circle):hover::after{
+    width: calc(var(--mark-size) * .7);
+    height: calc(var(--mark-size) * .7);
+    background-color:white;
+}
+
+.winning-message{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background-color: rgba(0,0,0,.8);
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    color:white;
+    font-size:5rem;
+    flex-direction: column;
+    font-family: 'Dosis', sans-serif;
+    display:none;
+}
+
+.winning-message button{
+    font-size:3rem;
+    background-color: white;
+    border:none;
+    border-radius: 3px;
+    padding:.25em .5em;
+    font-family: 'Dosis', sans-serif;
+}
+
+.winning-message button:hover{
+    background-color: gainsboro;
+}
+
+.winning-message.show{
+    display:flex;
+}
