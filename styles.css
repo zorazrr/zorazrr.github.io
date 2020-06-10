@@ -1,0 +1,46 @@
+body{
+    font-family: 'Rajdhani', sans-serif;
+    color:#0F2540;
+    background: rgb(211,229,237);
+    background: linear-gradient(180deg, rgba(211,229,237,1) 19%, rgba(255,255,255,1) 100%);
+}
+h1{
+    text-align: center;
+    margin:30px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight:bold;
+    font-size:40px;
+}
+h2{
+    font-weight:normal;
+}
+h3{
+    font-size:22px;
+    font-weight:medium;
+    font-family: 'Rajdhani', sans-serif;
+    padding:0px;
+    padding-bottom:5px;
+    margin:0px;
+}
+.program{
+    width: 60%;
+    height:110px;
+    margin:10 auto;
+    padding:15px;
+    box-shadow: 1px 1px 0 rgba(66, 66, 66, 0.08), 0 1px 3px 1px rgba(66, 66, 66, 0.16);
+    overflow: scroll;
+    line-height:1.5;
+    background-color:rgba(255,255,255,0.8);
+    border-radius:5px;
+}
+.program:hover{
+    background-color:rgba(255,255,255,0.3);
+    transition:.3s ease;
+}
+.program img{
+    max-height:100%; 
+    max-width:100%;
+    border-radius: 5px;
+    float:left;
+    padding-right:10px;
+}
