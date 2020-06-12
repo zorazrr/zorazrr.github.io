@@ -130,7 +130,7 @@
 			<button class ='apply' id = 'apply'>Apply</button>
 			</div>
 			<label for="imageLoader" class="custom-file-upload">Upload Image</label>
-			<input type="file" id="imageLoader" name="imageLoader"/>
+			<input type="file" id="imageLoader" name="imageLoader">
 			<div class = 'maxColor'></div>
 			<div id = 'hsvControls'></div>
 		</div>
@@ -499,12 +499,28 @@
 				createHistogram(xx, yy, ww, hh);
 			}
 			
+			function previewFile() {
+				const file = document.querySelector('input[type=file]').files[0];
+				const reader = new FileReader();
+				
+				reader.addEventListener("load", function () {
+				// convert image file to base64 string
+				image.src = reader.result;
+				}, false);
+				if (file) {
+				reader.readAsDataURL(file);
+				}
+			}
+			
 			hueSlide.draw(hsvControls);
 			satSlide.draw(hsvControls);
 			brightSlide.draw(hsvControls);
 
 			image.onload = drawImage;
-			image.src = '/projects/imageProcessor/defaultImage.png';
+			image.src = 'https://zora.wisen.space/default-image.jpg';
+			
+			const imageLoader = document.getElementById("imageLoader");
+			imageLoader.addEventListener('change', previewFile);
 			
 			window.addEventListener('resize', drawImage);
 			document.getElementById('apply').addEventListener('click',updateFill);
