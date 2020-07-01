@@ -1,0 +1,40 @@
+<head>
+    <title>Coding Generative Art</title>
+    <link rel="icon" href="zicon.png">
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.0.0/lib/p5.js"></script>
+    <script src="sketch.js"></script>
+    <script>
+
+        //set up canvas 
+        function setup(){
+            let cnv = createCanvas(windowWidth, windowHeight);
+            cnv.position(0, 0);
+            noLoop();
+        }
+
+        // respond to window resizing 
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+
+        // actual algorithm
+        function draw() {
+            background(218, 201, 166)
+            let step = 30;
+            for (var x = 0; x < windowWidth; x += step){
+                for (var y = 0; y <windowHeight; y += step){
+                    strokeWeight(5)
+                    stroke(110,85,47)
+                    if (random() > 0.5){
+                        line(x, y, x + step, y + step)
+                    }
+                    else{
+                        line(x + step, y, x, y + step)
+                    }
+                }
+            }
+        }
+    </script>
+</body>
