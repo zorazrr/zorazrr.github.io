@@ -1,0 +1,42 @@
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.0.0/lib/p5.js"></script>
+  </head>
+  <body>
+    <main>
+    </main>
+    <script>
+    function setup() {
+        let cnv = createCanvas(windowWidth, windowHeight);
+        cnv.position(0, 0);
+        stroke(255);
+        background(0);
+    }
+    
+    function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+    
+    function draw() {
+        clear();
+        background(0);
+        c (width/2, height/2, height);
+        noLoop();
+    }
+    
+    function c(x, y, r){
+        if (r > 2){
+        push();
+        strokeWeight(random(3));
+        fill(random(255));
+        circle (x, y, r);
+        pop();
+        c (x + (x/2), y, (r/2));
+        c (x - (x/2), y, (r/2));
+        c (x, y - (y/2), (r/2));
+        c (x , y + (y/2) , (r/2));
+        }
+    }
+    </script>
+  </body>
+</html>
